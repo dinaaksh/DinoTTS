@@ -1,0 +1,22 @@
+artifacts_root: artifacts
+
+data_ingestion:
+  root_dir: artifacts/data_ingestion
+  source_URL: https://drive.google.com/file/d/1Jc60ZHth_8ffdaTpc_oJuL9kaq1nFtNw/view?usp=sharing
+  local_data_file: artifacts/data_ingestion/data.zip
+  unzip_dir: artifacts/data_ingestion
+
+data_preprocessing:
+  root_dir: artifacts/data_preprocessing
+  processed_audio_dir: artifacts/data_preprocessing/processed_audio
+  audio_path: artifacts/data_ingestion/LJSpeech-1.1/wavs
+
+model_training:
+  root_dir: artifacts/model_training
+  output_dir: artifacts/model_training/output
+  phoneme_cache_path: artifacts/model_training/phoneme_cache
+  dataset_name: ljspeech
+  dataset_path: artifacts/data_ingestion/LJSpeech-1.1
+  metadata_path: metadata.csv
+  restore_path: #keep empty for new model, put checkpoint .pth file path for training existing model
+
