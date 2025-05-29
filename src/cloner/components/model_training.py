@@ -15,7 +15,7 @@ import torch
 
 import os
 
-class ModelConfig:
+class   ModelConfig:
     def __init__(self,config: ModelTrainingConfig):
         self.config=config
         self.params=read_yaml(PARAMS_FILE_PATH)
@@ -141,6 +141,7 @@ class ModelConfig:
             return model, optimizer, epoch, step
         else:
             return None, None, 0, 0
+        
     def get_fit(self):
         restore_path = getattr(self.config, "restore_path", None)
         trainer = self.get_trainer(restore_path)

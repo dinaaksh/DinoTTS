@@ -1,6 +1,6 @@
 from cloner.constants import *
 from cloner.utils.common import read_yaml, create_directories
-from cloner.entity.config_entity import DataIngestionConfig, DataPreProcessConfig, ModelTrainingConfig
+from cloner.entity.config_entity import DataIngestionConfig, DataPreProcessConfig, ModelTrainingConfig, EvaluationConfig
 class ConfigurationManager:
     def __init__(
             self,
@@ -52,3 +52,16 @@ class ConfigurationManager:
                 ) 
 
           return model_training_config
+    
+    def get_model_evaluation_config(self)-> EvaluationConfig:
+          config=self.config.model_evaluation
+          params=self.params
+          create_directories([config.root_dir]) 
+
+          model_evaluation_config=EvaluationConfig( 
+                root_dir= config.root_dir,
+                mlflow_uri=config.mlflow_uri,
+                model_path=config.model_path,
+                all_params=params
+                )
+          return model_evaluation_config

@@ -5,8 +5,8 @@ stages:
     deps:
     - path: config/config.yaml
       hash: md5
-      md5: 94466ed123e626a57e83c853b7a2557a
-      size: 827
+      md5: 78ff2106b8c1dc5c7f24f0425d07cc3b
+      size: 1049
     - path: src/cloner/pipeline/stage_01_data_ingestion.py
       hash: md5
       md5: 3cc8c1ae51b3306cb9026402ff67cd9f
@@ -22,8 +22,8 @@ stages:
     deps:
     - path: config/config.yaml
       hash: md5
-      md5: 94466ed123e626a57e83c853b7a2557a
-      size: 827
+      md5: 78ff2106b8c1dc5c7f24f0425d07cc3b
+      size: 1049
     - path: params.yaml
       hash: md5
       md5: c4a3f58a72f4f881e2a2e11989479f25

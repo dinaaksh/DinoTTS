@@ -16,4 +16,5 @@ scipy
 flask-Cors
 types-PyYAML
 gdown
+mlflow
 -e .
