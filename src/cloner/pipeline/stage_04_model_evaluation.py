@@ -10,8 +10,12 @@ class ModelEvaluationPipeline:
 
     def main(self):
             config=ConfigurationManager()
+            model_training_config = config.get_model_training_config()
             model_evaluation_config=config.get_model_evaluation_config()
-            model_evaluation=AudioModelEvaluation(config=model_evaluation_config)
+            model_evaluation = AudioModelEvaluation(
+                eval_config=model_evaluation_config,
+                train_config=model_training_config
+            )
             model_evaluation.log_into_mlflow()
 
 if __name__=='__main__':

@@ -8,14 +8,17 @@ import seaborn as sns
 
 from cloner import logger
 from cloner.config.configuration import EvaluationConfig, ModelTrainingConfig
+from cloner.components.model_training import ModelConfig
 
 
 class AudioModelEvaluation:
-    def __init__(self, config: EvaluationConfig):
-        self.config = config
+    def __init__(self, eval_config: EvaluationConfig, train_config: ModelTrainingConfig):
+        self.config = eval_config
+        self.model_config = ModelConfig(config=train_config) 
 
     def log_into_mlflow(self):
         mlflow.set_tracking_uri(self.config.mlflow_uri)
+        mlflow.set_experiment("AudioModelEvaluation") 
 
         with mlflow.start_run():
             # Log all given params
