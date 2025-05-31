@@ -24,10 +24,3 @@ class ModelTrainingConfig:
     metadata_path: Path
     restore_path: Path
 
-@dataclass(frozen=True)
-class EvaluationConfig:
-    root_dir: Path
-    mlflow_uri: str
-    all_params: Path
-    model_path: Path
-

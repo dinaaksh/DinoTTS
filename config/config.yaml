@@ -19,8 +19,3 @@ model_training:
   dataset_path: artifacts/data_ingestion/LJSpeech-1.1
   metadata_path: metadata.csv
   restore_path: #keep empty for new model, put checkpoint .pth file path for training existing model
-
-model_evaluation:
-  root_dir: artifacts/model_evaluation
-  mlflow_uri: https://dagshub.com/sahil.verma/DinoTTS.mlflow
-  model_path: artifacts/model_training/output/vits_ljspeech-May-28-2025_01+45PM-3618da6/checkpoint_0.pth
