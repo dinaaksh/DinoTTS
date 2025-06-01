@@ -56,3 +56,4 @@ model_config:
   output_path: artifacts/model_training/output
   datasets: [dataset_config]
   cudnn_benchmark: False
+  mlflow_tracking_uri: https://dagshub.com/sahil.verma/DinoTTS.mlflow

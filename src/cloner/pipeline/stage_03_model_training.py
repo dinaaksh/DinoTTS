@@ -4,7 +4,7 @@ from cloner import logger
 
 STAGE_NAME="Model Configuration"
 
-class ModelConfigurationPipeline:
+class ModelTrainingPipeline:
     def __init__(self):
         pass
 
@@ -20,7 +20,7 @@ class ModelConfigurationPipeline:
 if __name__=='__main__':
     try:
         logger.info(f">>>>> stage {STAGE_NAME} started <<<<<")
-        obj=ModelConfigurationPipeline()
+        obj=ModelTrainingPipeline()
         obj.main()
         logger.info(f">>>>> stage {STAGE_NAME} completed <<<<<\n\n")
     except Exception as e:

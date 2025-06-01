@@ -1,6 +1,6 @@
 from cloner.constants import *
 from cloner.utils.common import read_yaml, create_directories
-from cloner.entity.config_entity import DataIngestionConfig, DataPreProcessConfig, ModelTrainingConfig, EvaluationConfig
+from cloner.entity.config_entity import DataIngestionConfig, DataPreProcessConfig, ModelTrainingConfig
 class ConfigurationManager:
     def __init__(
             self,

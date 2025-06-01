@@ -1,5 +1,6 @@
 from pathlib import Path
 from trainer import Trainer, TrainerArgs
+from cloner.utils.mlflow_logger import MLFlowLogger
 from TTS.tts.configs.vits_config import VitsConfig
 from TTS.tts.configs.shared_configs import BaseDatasetConfig
 from TTS.tts.datasets import load_tts_samples
@@ -10,11 +11,6 @@ from cloner.pipeline.stage_02_data_preprocessing import DataPreprocessor
 from cloner.entity.config_entity import DataPreProcessConfig
 from cloner.config.configuration import ModelTrainingConfig
 from cloner.constants import *
-from cloner.utils.common import read_yaml
-import torch
-import mlflow
-import mlflow.pytorch
-
 
 import os
 
@@ -108,20 +104,17 @@ class   ModelConfig:
             tokenizer=self.get_tokenizer()
             self._model=Vits(config,ap,tokenizer,speaker_manager=None)
             return self._model
-        if checkpoint_path:
-            checkpoint=torch.load(checkpoint_path)
-            self._model.load_state_dict(checkpoint['model_state_dict'])
-            epoch=checkpoint.get('epoch',0)
-            print(f"Resuming from checkpoint at epoch{epoch}")
         return self._model
     
-    def get_trainer(self, restore_path=None):
+    def get_trainer(self, restore_path=None,use_mlflow=True):
         train_samples, eval_samples = self.get_data_split()
-
         model = self.get_model()
         
         trainer_args = TrainerArgs()
         trainer_args.restore_path = restore_path 
+
+        mlflow_logger = self.get_mlflow_logger() if use_mlflow else None
+
         trainer_instance = Trainer(
             trainer_args,
             config=self.vits_config,
@@ -129,22 +122,35 @@ class   ModelConfig:
             model=model,
             train_samples=train_samples,
             eval_samples=eval_samples,
+            dashboard_logger=mlflow_logger,
             parse_command_line_args=False
         )
         return trainer_instance
     
-    def load_model_from_checkpoint(self, restore_path): 
-        if os.path.exists(restore_path):
-            checkpoint = torch.load(restore_path, map_location="cpu")
-            model = self.get_model()
-            model.load_state_dict(checkpoint["model"])
-            optimizer = checkpoint["optimizer"]
-            epoch = checkpoint["epoch"]
-            step = checkpoint["step"]
-            return model, optimizer, epoch, step
-        else:
-            return None, None, 0, 0
+    def get_mlflow_logger(self):
+        params=self.params["model_config"]
+        mlflow_uri=params["mlflow_tracking_uri"]
+        model_name=params["run_name"]
+        tags = {"mlflow.runName": f"Run for {model_name}"}
         
+        mlflow_logger = MLFlowLogger(
+            log_uri=mlflow_uri,
+            model_name=model_name,
+            tags=tags
+        )
+
+        keys = [
+            "run_name","batch_size","eval_batch_size","batch_group_size","num_loader_workers","num_eval_loader_workers","run_eval","test_delay_epochs","epochs","text_cleaner",
+            "use_phonemes","phoneme_language","compute_input_seq_cache","print_step","print_eval","mixed_precision","cudnn_benchmark"
+        ]
+        
+        for key in keys:
+            value=params.get(key)
+            if isinstance(value, (str, int, float, bool)):
+                mlflow_logger.client.log_param(mlflow_logger.run_id, key, value)
+
+        return mlflow_logger
+    
     def get_fit(self):
         restore_path = getattr(self.config, "restore_path", None)
         trainer = self.get_trainer(restore_path)

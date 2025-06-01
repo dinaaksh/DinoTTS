@@ -18,4 +18,4 @@ model_training:
   dataset_name: ljspeech
   dataset_path: artifacts/data_ingestion/LJSpeech-1.1
   metadata_path: metadata.csv
-  restore_path: #keep empty for new model, put checkpoint .pth file path for training existing model
+  restore_path: #put model checkpoint path here
