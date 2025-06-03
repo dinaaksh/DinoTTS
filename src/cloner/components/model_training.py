@@ -16,9 +16,10 @@ from mlflow.tracking import MlflowClient
 import os
 import tempfile
 import shutil
+import torch
 
 
-class   ModelConfig:
+class  ModelConfig:
     def __init__(self,config: ModelTrainingConfig):
         self.config=config
         self.params=read_yaml(PARAMS_FILE_PATH)
@@ -100,7 +101,7 @@ class   ModelConfig:
             )
         return self._train_samples,self._eval_samples
     
-    def get_model(self, checkpoint_path=None):
+    def get_model(self):
         if self._model is None:
             config=self.vits_config
             ap=self.get_audio_processor()
@@ -153,12 +154,11 @@ class   ModelConfig:
 
         return mlflow_logger
     
-    def get_fit(self):
-        restore_path = getattr(self.config, "restore_path", None)
-        trainer = self.get_trainer(restore_path)
-        self._trainer_instance = trainer
+    def train(self):
+        restore_path=getattr(self.config, "restore_path", None)
+        trainer=self.get_trainer(restore_path)
+        self._trainer_instance=trainer
         trainer.fit()
-        self.register_model()
 
     def get_latest_model_path(self, base_output_path):
         subdirs=[
@@ -180,6 +180,35 @@ class   ModelConfig:
             logger.warning(f"'best_model.pth' not found in latest subdirectory: {latest_subdir}")
             return None
         
+    def reduce_model(self):
+        best_model_path=self.get_latest_model_path(self.vits_config.output_path)
+        input_checkpoint_path=best_model_path
+        if best_model_path is None:
+            raise FileNotFoundError("No valid best_model.pth found in output path.")
+        checkpoint_dir=os.path.join(self.vits_config.output_path, "checkpoint")
+        os.makedirs(checkpoint_dir,exist_ok=True)
+        output_model_path=os.path.join(checkpoint_dir,"optimized_model.pth")
+
+        print(f"Loading checkpoint: {input_checkpoint_path}")
+        checkpoint=torch.load(input_checkpoint_path, map_location="cpu")
+
+        print(f"Checkpoint keys: {list(checkpoint.keys())}")
+
+        if 'optimizer' in checkpoint:
+            print("Removing optimizer state...")
+            del checkpoint['optimizer']
+        else:
+            print("No optimizer state found. Nothing to remove.")
+
+        torch.save(checkpoint, output_model_path)
+        print(f"Saved shrinked model to: {output_model_path}")
+
+        orig_size = os.path.getsize(input_checkpoint_path) / (1024 * 1024)
+        new_size = os.path.getsize(output_model_path) / (1024 * 1024)
+        print(f"Original size: {orig_size:.2f} MB -> Optimized size: {new_size:.2f} MB")
+
+        return output_model_path
+        
     def register_model(self, model_artifact_name="model"):
 
         if self._trainer_instance is None or not isinstance(self._trainer_instance.dashboard_logger, MLFlowLogger):
@@ -193,9 +222,8 @@ class   ModelConfig:
 
         run_id=mlflow_logger.run_id
         client: MlflowClient=mlflow_logger.client
-        base_output_path=self.vits_config.output_path
-        model_path=self.get_latest_model_path(base_output_path)
-        model_file_name="best_model.pth"
+        model_path=self.reduce_model()
+        model_file_name="optimized_model.pth"
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at: {model_path}")
 

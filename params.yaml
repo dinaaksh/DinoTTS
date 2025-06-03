@@ -40,8 +40,8 @@ model_config:
   batch_size: 8
   eval_batch_size: 3
   batch_group_size: 2
-  num_loader_workers: 4
-  num_eval_loader_workers: 4
+  num_loader_workers: 6
+  num_eval_loader_workers: 6
   run_eval: True
   test_delay_epochs: -1
   epochs: 1

@@ -15,7 +15,8 @@ class ModelTrainingPipeline:
             model_training.get_audio_config()
             model_training.get_dataset_config()
             model_training.get_vits_config()
-            model_training.get_fit()
+            model_training.train()
+            model_training.register_model()
 
 if __name__=='__main__':
     try:
