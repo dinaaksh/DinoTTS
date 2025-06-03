@@ -1,6 +1,6 @@
 from cloner.config.configuration import ConfigurationManager
 from cloner.components.data_ingestion import DataIngestion
-from cloner import logger
+from cloner.utils.logger import logger
 
 STAGE_NAME="Data Ingestion Stage"
 

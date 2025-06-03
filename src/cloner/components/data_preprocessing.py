@@ -6,7 +6,7 @@ import numpy as np
 from TTS.tts.datasets.formatters import *
 from TTS.utils.audio import AudioProcessor
 from TTS.config.shared_configs import BaseAudioConfig
-from cloner import logger 
+from cloner.utils.logger import logger
 import librosa
 from pathlib import Path
 from cloner.constants import *

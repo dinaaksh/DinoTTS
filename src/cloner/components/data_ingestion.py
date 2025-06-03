@@ -1,7 +1,7 @@
 import os
 import urllib.request as request
 import zipfile
-from cloner import logger
+from cloner.utils.logger import logger
 from cloner.utils.common import get_size
 from cloner.entity.config_entity import DataIngestionConfig
 from pathlib import Path

@@ -1,4 +1,3 @@
-from pathlib import Path
 from trainer import Trainer, TrainerArgs
 from cloner.utils.mlflow_logger import MLFlowLogger
 from TTS.tts.configs.vits_config import VitsConfig
@@ -11,8 +10,13 @@ from cloner.pipeline.stage_02_data_preprocessing import DataPreprocessor
 from cloner.entity.config_entity import DataPreProcessConfig
 from cloner.config.configuration import ModelTrainingConfig
 from cloner.constants import *
-
+from cloner.utils.logger import logger
+import mlflow
+from mlflow.tracking import MlflowClient
 import os
+import tempfile
+import shutil
+
 
 class   ModelConfig:
     def __init__(self,config: ModelTrainingConfig):
@@ -41,7 +45,6 @@ class   ModelConfig:
         )
 
     def get_vits_config(self):
-        config=self.config
         params=self.params["model_config"]
         audio_config=self.audio_config
         dataset_config=self.dataset_config
@@ -103,7 +106,6 @@ class   ModelConfig:
             ap=self.get_audio_processor()
             tokenizer=self.get_tokenizer()
             self._model=Vits(config,ap,tokenizer,speaker_manager=None)
-            return self._model
         return self._model
     
     def get_trainer(self, restore_path=None,use_mlflow=True):
@@ -154,4 +156,62 @@ class   ModelConfig:
     def get_fit(self):
         restore_path = getattr(self.config, "restore_path", None)
         trainer = self.get_trainer(restore_path)
+        self._trainer_instance = trainer
         trainer.fit()
+        self.register_model()
+
+    def get_latest_model_path(self, base_output_path):
+        subdirs=[
+            os.path.join(base_output_path, d)
+            for d in os.listdir(base_output_path)
+            if os.path.isdir(os.path.join(base_output_path, d))
+        ]
+
+        if not subdirs:
+            logger.warning("No subdirectories found in output path.")
+            return None
+
+        latest_subdir=max(subdirs, key=os.path.getmtime)
+        best_model_path=os.path.join(latest_subdir, "best_model.pth")
+
+        if os.path.exists(best_model_path):
+            return best_model_path
+        else:
+            logger.warning(f"'best_model.pth' not found in latest subdirectory: {latest_subdir}")
+            return None
+        
+    def register_model(self, model_artifact_name="model"):
+
+        if self._trainer_instance is None or not isinstance(self._trainer_instance.dashboard_logger, MLFlowLogger):
+            logger.warning("Trainer not initialized or MLFlowLogger not used. Skipping model registration.")
+            return
+
+        mlflow_logger = self._trainer_instance.dashboard_logger
+        if not isinstance(mlflow_logger, MLFlowLogger):
+            print("MLFlowLogger not used. Skipping model registration.")
+            return
+
+        run_id=mlflow_logger.run_id
+        client: MlflowClient=mlflow_logger.client
+        base_output_path=self.vits_config.output_path
+        model_path=self.get_latest_model_path(base_output_path)
+        model_file_name="best_model.pth"
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found at: {model_path}")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_model_path = os.path.join(temp_dir, model_file_name)
+            shutil.copy(model_path, temp_model_path)
+            logger.info("Uploading model to MLflow...")
+            client.log_artifacts(run_id, temp_dir, artifact_path=model_artifact_name)
+
+        model_uri = f"runs:/{run_id}/{model_artifact_name}"
+        model_name = self.vits_config.run_name
+
+        logger.info(f"Registering model '{model_name}' from URI: {model_uri}")
+        try:
+            registered_model = mlflow.register_model(model_uri=model_uri, name=model_name)
+            logger.info(f"Model registered successfully: name={registered_model.name}, version={registered_model.version}")
+        except Exception as e:
+            logger.error(f"Failed to register model: {e}")
+

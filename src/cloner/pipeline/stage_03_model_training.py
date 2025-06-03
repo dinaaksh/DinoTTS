@@ -1,6 +1,6 @@
 from cloner.config.configuration import ConfigurationManager
 from cloner.components.model_training import ModelConfig
-from cloner import logger
+from cloner.utils.logger import logger
 
 STAGE_NAME="Model Configuration"
 

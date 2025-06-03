@@ -1,7 +1,7 @@
 import os
 from box.exceptions import BoxValueError
 import yaml
-from cloner import logger
+from cloner.utils.logger import logger
 import json
 import joblib
 from ensure import ensure_annotations
