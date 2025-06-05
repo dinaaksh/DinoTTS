@@ -162,4 +162,5 @@ cython_debug/
 artifacts/*
 test_models/*
 mlruns
+mlflow_artifacts
 checkpoint
