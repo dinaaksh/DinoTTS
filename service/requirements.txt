@@ -1,0 +1,4 @@
+streamlit
+together
+
+#for llm and frontend, another environment was created as it is incompatible with the 
