@@ -1,4 +1,9 @@
-streamlit
+coqui-tts==0.26.2
+torch
+pyYAML
 together
+mlflow
+python-box
 
+-e .
 #for llm and frontend, another environment was created as it is incompatible with the 
