@@ -7,15 +7,15 @@ from core.utils.common import read_yaml,write_yaml
 from core.utils.constants import *
 from mlflow.tracking import MlflowClient
 
-config=read_yaml(CONFIG_FILE_PATH)
-os.environ["MLFLOW_TRACKING_URI"]=config["MLFLOW_TRACKING_URI"]
-os.environ["MLFLOW_TRACKING_USERNAME"]=config["MLFLOW_TRACKING_USERNAME"]
-os.environ["MLFLOW_TRACKING_PASSWORD"]=config["MLFLOW_TRACKING_PASSWORD"]
-
+MLFLOW_TRACKING_URI=os.getenv('MLFLOW_TRACKING_URI')
+MLFLOW_TRACKING_USERNAME=os.getenv('MLFLOW_TRACKING_USERNAME')
+MLFLOW_TRACKING_PASSWORD=os.getenv('MLFLOW_TRACKING_PASSWORD')
 
 class LoadModel:
+    @staticmethod
     def get_model():
         try:
+            config=read_yaml(CONFIG_FILE_PATH)
             model_name="vits_ljspeech"
             version="2"
             model_uri=f"models:/{model_name}/{version}"
@@ -63,10 +63,10 @@ class LoadModel:
             if not config_path.exists():
                 raise FileNotFoundError(f"Config file not found: {config_path}")
 
-            config["MODEL_PATH"]=str(model_path)
-            config["CONFIG_PATH"]=str(config_path)
+            config["MODEL_PATH"]=model_path.as_posix()
+            config["CONFIG_PATH"]=config_path.as_posix()
             write_yaml(CONFIG_FILE_PATH, dict(config))
-            return model_path, config_path
+            return model_path.as_posix(),config_path.as_posix()
 
         except Exception as e:
             logger.error(f"Error occurred: {e}")

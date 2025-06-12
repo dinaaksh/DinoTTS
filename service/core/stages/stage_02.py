@@ -1,11 +1,8 @@
 import os
 import re
-from core.utils.common import read_yaml
-from core.utils.constants import *
-
-config=read_yaml(CONFIG_FILE_PATH)
-os.environ["TOGETHER_API_KEY"]=config["TOGETHER_API_KEY"]
 from together import Together
+
+TOGETHER_API_KEY=os.getenv('TOGETHER_API_KEY')
 
 client = Together()
 

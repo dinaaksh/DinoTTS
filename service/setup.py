@@ -27,5 +27,7 @@ setuptools.setup(
         "mlflow",
         "pyYAML",
         "python-box"
-    ]
+    ],
+    include_package_data=True,
+    python_requires=">=3.11",
 )

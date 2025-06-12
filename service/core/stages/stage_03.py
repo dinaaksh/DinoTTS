@@ -4,15 +4,13 @@ from core.utils.common import read_yaml
 from core.utils.constants import *
 from pathlib import Path
 
-
-config=read_yaml(CONFIG_FILE_PATH)
-
 class tts:
     def clone():
-        # generated_speech=TTS(model_name="tts_models/en/ljspeech/vits", progress_bar=False)
-        model_path=Path(config["MODEL_PATH"])
-        config_path=Path(config["CONFIG_PATH"])
-        generated_speech = TTS(model_path=model_path,config_path=config_path, progress_bar=False)
+        # config=read_yaml(CONFIG_FILE_PATH)
+        # model_path=Path(config["MODEL_PATH"]).as_posix()
+        # config_path=Path(config["CONFIG_PATH"]).as_posix()
+        # generated_speech = TTS(model_path=model_path,config_path=config_path, progress_bar=False)
+        generated_speech=TTS(model_name="tts_models/en/ljspeech/vits", progress_bar=False)
         text=llm.message()
         generated_speech.tts_to_file(text=text, file_path="output.wav")
 
