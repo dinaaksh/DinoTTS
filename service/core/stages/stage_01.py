@@ -17,7 +17,7 @@ class LoadModel:
         try:
             config=read_yaml(CONFIG_FILE_PATH)
             model_name="vits_ljspeech"
-            version="2"
+            version="1"
             model_uri=f"models:/{model_name}/{version}"
             logger.info(f"Model URI: {model_uri}")
 

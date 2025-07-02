@@ -44,9 +44,9 @@ model_config:
   num_eval_loader_workers: 6
   run_eval: True
   test_delay_epochs: -1
-  epochs: 1
+  epochs: 100000
   text_cleaner: english_cleaners
-  use_phonemes: True
+  use_phonemes: False
   phoneme_language: en-us
   phoneme_cache_path: os.path.join(output_path, "phoneme_cache")
   compute_input_seq_cache: True
@@ -56,4 +56,4 @@ model_config:
   output_path: artifacts/model_training/output
   datasets: [dataset_config]
   cudnn_benchmark: False
-  mlflow_tracking_uri: https://dagshub.com/sahil.verma/DinoTTS.mlflow
+  mlflow_tracking_uri: https://dagshub.com/dinaaksh.aulakh10/vc.mlflow
